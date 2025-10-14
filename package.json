@@ -1,0 +1,60 @@
+{
+  "name": "@pieverse/receipt",
+  "version": "0.1.0-alpha.1",
+  "description": "One-click receipt generation for Web3 transactions with tax compliance",
+  "author": "TimePot Team",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "web3",
+    "receipt",
+    "invoice",
+    "blockchain",
+    "tax",
+    "compliance",
+    "bsc",
+    "ethereum",
+    "crypto"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "^4.3.1",
+    "viem": "^2.33.3",
+    "date-fns": "^4.1.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.0",
+    "@types/node": "^22.17.1",
+    "typescript": "^5.9.2",
+    "tsup": "^8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timepot/pieverse-receipt"
+  },
+  "bugs": {
+    "url": "https://github.com/timepot/pieverse-receipt/issues"
+  }
+}
+
