@@ -1,71 +1,71 @@
-import { PieverseReceipt } from 'pieverse-receipt';
-import type { BrandConfig, TaxMetadata } from 'pieverse-receipt';
-import './App.css';
+import { PieverseReceipt } from "pieverse-receipt";
+import type { BrandConfig, TaxMetadata } from "pieverse-receipt";
+import "./App.css";
 
 function App() {
   // Real BNB Chain transaction hash for demonstration
   // This is an actual confirmed transaction on BSC mainnet
   const exampleTransactions = {
-    bsc: '0x322881d146fc1fcc7b563ada4dd4df57e3f941320bb4645cb79dedb9af72fd9f',
-    ethereum: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
-    polygon: '0x9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba',
+    bsc: "0x322881d146fc1fcc7b563ada4dd4df57e3f941320bb4645cb79dedb9af72fd9f",
+    ethereum: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+    polygon: "0x9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba",
   };
 
   // Example brand configurations
   const defaultBrand: BrandConfig = {
-    partnerName: 'Pieverse Demo',
-    primaryColor: '#667eea',
+    partnerName: "Pieverse Demo",
+    primaryColor: "#667eea",
   };
 
   const customBrand1: BrandConfig = {
-    partnerName: 'Your Company',
-    logoUrl: 'https://via.placeholder.com/150x50/4F46E5/FFFFFF?text=Your+Logo',
-    primaryColor: '#4F46E5',
-    secondaryColor: '#818CF8',
+    partnerName: "Your Company",
+    logoUrl: "https://via.placeholder.com/150x50/4F46E5/FFFFFF?text=Your+Logo",
+    primaryColor: "#4F46E5",
+    secondaryColor: "#818CF8",
   };
 
   const customBrand2: BrandConfig = {
-    partnerName: 'Green Brand',
-    logoUrl: 'https://via.placeholder.com/150x50/059669/FFFFFF?text=Green+Brand',
-    primaryColor: '#059669',
-    secondaryColor: '#34D399',
+    partnerName: "Green Brand",
+    logoUrl: "https://via.placeholder.com/150x50/059669/FFFFFF?text=Green+Brand",
+    primaryColor: "#059669",
+    secondaryColor: "#34D399",
   };
 
   // Example tax metadata
   const usTaxMetadata: TaxMetadata = {
-    userRole: 'creator',
+    userRole: "creator",
     jurisdiction: {
-      country: 'US',
-      countryName: 'United States',
-      state: 'CA',
-      stateName: 'California',
+      country: "US",
+      countryName: "United States",
+      state: "CA",
+      stateName: "California",
     },
-    transactionType: 'business_income',
+    transactionType: "business_income",
   };
 
   const euTaxMetadata: TaxMetadata = {
-    userRole: 'creator',
+    userRole: "creator",
     jurisdiction: {
-      country: 'DE',
-      countryName: 'Germany',
+      country: "DE",
+      countryName: "Germany",
     },
-    transactionType: 'business_income',
+    transactionType: "business_income",
   };
 
   const sgTaxMetadata: TaxMetadata = {
-    userRole: 'creator',
+    userRole: "creator",
     jurisdiction: {
-      country: 'SG',
-      countryName: 'Singapore',
+      country: "SG",
+      countryName: "Singapore",
     },
-    transactionType: 'business_income',
+    transactionType: "business_income",
   };
 
   const handleDownload = (success: boolean, error?: string) => {
     if (success) {
-      console.log('✅ Receipt downloaded successfully!');
+      console.log("✅ Receipt downloaded successfully!");
     } else {
-      console.error('❌ Download failed:', error);
+      console.error("❌ Download failed:", error);
     }
   };
 
@@ -73,8 +73,8 @@ function App() {
     <div className="container">
       <h1>Pieverse Receipt Examples</h1>
       <p className="intro">
-        Interactive examples demonstrating the Pieverse Receipt component. Click any button
-        to generate a receipt PDF from a blockchain transaction.
+        Interactive examples demonstrating the Pieverse Receipt component. Click any button to generate a receipt PDF
+        from a blockchain transaction.
       </p>
 
       <div className="info-section">
@@ -91,14 +91,19 @@ function App() {
 
       <div className="info-section">
         <h3>✨ Live Demo</h3>
-        <p>
-          The BSC examples below use a real confirmed transaction on BNB Smart Chain:
-        </p>
+        <p>The BSC examples below use a real confirmed transaction on BNB Smart Chain:</p>
         <ul>
-          <li><strong>Tx Hash:</strong> <code>0xe742...b909</code></li>
+          <li>
+            <strong>Tx Hash:</strong> <code>0xe742...b909</code>
+          </li>
           <li>The component automatically fetches transaction data from BSC</li>
           <li>Try clicking any button to generate a PDF receipt!</li>
-          <li>Ethereum and Polygon examples use placeholder hashes (BSC only for now)</li>
+          <li>
+            <strong>Note:</strong> The component requires simple payment transactions (token transfers). If you see an
+            error about "contract interaction", the transaction may be a smart contract call rather than a direct
+            payment.
+          </li>
+          <li>For testing, use transaction hashes from wallet-to-wallet transfers of USDT, BNB, or other tokens</li>
         </ul>
       </div>
 
@@ -107,8 +112,8 @@ function App() {
         <div className="example-card">
           <h3>BSC (BNB Smart Chain)</h3>
           <p>
-            Generate a receipt for a BSC transaction with US tax compliance metadata.
-            The component will automatically detect USDT, BNB, and other BSC tokens.
+            Generate a receipt for a BSC transaction with US tax compliance metadata. The component will automatically
+            detect USDT, BNB, and other BSC tokens.
           </p>
           <div className="receipt-wrapper">
             <PieverseReceipt
@@ -124,10 +129,8 @@ function App() {
 
         <div className="example-card">
           <h3>Button Variants</h3>
-          <p>
-            Different button styles for integration flexibility. Choose from button, icon, or link variants.
-          </p>
-          <div className="receipt-wrapper" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <p>Different button styles for integration flexibility. Choose from button, icon, or link variants.</p>
+          <div className="receipt-wrapper" style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
             <PieverseReceipt
               tx={exampleTransactions.bsc}
               chain="bsc"
@@ -135,12 +138,7 @@ function App() {
               label="Button Style"
               onDownload={handleDownload}
             />
-            <PieverseReceipt
-              tx={exampleTransactions.bsc}
-              chain="bsc"
-              variant="icon"
-              onDownload={handleDownload}
-            />
+            <PieverseReceipt tx={exampleTransactions.bsc} chain="bsc" variant="icon" onDownload={handleDownload} />
             <PieverseReceipt
               tx={exampleTransactions.bsc}
               chain="bsc"
@@ -153,11 +151,8 @@ function App() {
 
         <div className="example-card">
           <h3>Tax Jurisdictions</h3>
-          <p>
-            Demonstrate different tax jurisdictions. Each generates compliant tax forms
-            for the specified region.
-          </p>
-          <div className="receipt-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <p>Demonstrate different tax jurisdictions. Each generates compliant tax forms for the specified region.</p>
+          <div className="receipt-wrapper" style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             <PieverseReceipt
               tx={exampleTransactions.bsc}
               chain="bsc"
@@ -187,10 +182,7 @@ function App() {
       <div className="example-grid">
         <div className="example-card">
           <h3>Custom Logo & Colors #1</h3>
-          <p>
-            White-label solution with custom branding. Perfect for integrating into
-            your own platform.
-          </p>
+          <p>White-label solution with custom branding. Perfect for integrating into your own platform.</p>
           <div className="receipt-wrapper">
             <PieverseReceipt
               tx={exampleTransactions.bsc}
@@ -204,9 +196,7 @@ function App() {
 
         <div className="example-card">
           <h3>Custom Logo & Colors #2</h3>
-          <p>
-            Another branding example with different colors to match your company identity.
-          </p>
+          <p>Another branding example with different colors to match your company identity.</p>
           <div className="receipt-wrapper">
             <PieverseReceipt
               tx={exampleTransactions.bsc}
@@ -223,24 +213,21 @@ function App() {
         <h3>Implementation Notes</h3>
         <ul>
           <li>
-            <strong>Transaction Parsing:</strong> The component automatically fetches and parses
-            blockchain transactions using chain-specific APIs
+            <strong>Transaction Parsing:</strong> The component automatically fetches and parses blockchain transactions
+            using chain-specific APIs
           </li>
           <li>
-            <strong>Tax Compliance:</strong> Tax forms are automatically included based on
-            jurisdiction metadata
+            <strong>Tax Compliance:</strong> Tax forms are automatically included based on jurisdiction metadata
           </li>
           <li>
-            <strong>PDF Generation:</strong> Progressive download for mobile wallets,
-            direct download for desktop browsers
+            <strong>PDF Generation:</strong> Progressive download for mobile wallets, direct download for desktop
+            browsers
           </li>
           <li>
-            <strong>Explorer Links:</strong> Automatic blockchain explorer links included
-            for transaction verification
+            <strong>Explorer Links:</strong> Automatic blockchain explorer links included for transaction verification
           </li>
           <li>
-            <strong>Token Detection:</strong> Supports USDT, USDC, BUSD, native tokens,
-            and custom ERC-20 tokens
+            <strong>Token Detection:</strong> Supports USDT, USDC, BUSD, native tokens, and custom ERC-20 tokens
           </li>
         </ul>
       </div>
