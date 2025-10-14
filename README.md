@@ -108,6 +108,55 @@ That's it! Your users can now download professional receipts for their transacti
 />
 ```
 
+### With Custom Tokens
+
+```tsx
+<PieverseReceipt
+  tx="0xabcdef..."
+  chain="bsc"
+  customTokens={[
+    {
+      address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
+      symbol: "CAKE",
+      decimals: 18,
+      name: "PancakeSwap Token"
+    },
+    {
+      address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+      symbol: "USDC",
+      decimals: 6,
+      name: "USD Coin"
+    }
+  ]}
+/>
+```
+
+### With Custom RPC
+
+```tsx
+<PieverseReceipt
+  tx="0xabcdef..."
+  chain="bsc"
+  rpcUrl="https://your-custom-rpc-endpoint.com"
+  customTokens={myTokens}
+/>
+```
+
+### With Custom Loading State
+
+```tsx
+<PieverseReceipt
+  tx="0xabcdef..."
+  loadingText="Fetching receipt..."
+  // OR use a custom component
+  loadingComponent={
+    <div className="flex items-center gap-2">
+      <Spinner /> Generating...
+    </div>
+  }
+/>
+```
+
 ## 🎨 Customization
 
 ### Brand Configuration
@@ -124,6 +173,38 @@ interface BrandConfig {
   textColor?: string;          // Text color
 }
 ```
+
+### Custom Tokens
+
+Support custom ERC20 tokens beyond the built-in USDT, BUSD, and USDC:
+
+```tsx
+interface TokenConfig {
+  address: string;    // Token contract address
+  symbol: string;     // Token symbol (e.g., "CAKE")
+  decimals: number;   // Token decimals (usually 18)
+  name?: string;      // Optional token name
+}
+
+// Example usage
+const myTokens: TokenConfig[] = [
+  {
+    address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
+    symbol: "CAKE",
+    decimals: 18,
+    name: "PancakeSwap Token"
+  }
+];
+
+<PieverseReceipt tx="0x..." customTokens={myTokens} />
+```
+
+**How it works:**
+- The component automatically detects if the transaction involves your custom tokens
+- Token address matching is case-insensitive
+- Falls back to default tokens (USDT, BUSD, USDC) if not in custom list
+- Shows "UNKNOWN" for unrecognized tokens
+- Supports custom decimals for accurate amount formatting
 
 ### Button Variants
 
@@ -157,9 +238,13 @@ Main component for receipt generation.
 | `brandConfig` | `BrandConfig` | `undefined` | Custom branding |
 | `variant` | `'button' \| 'icon' \| 'link'` | `'button'` | Button style |
 | `label` | `string` | `'Download Receipt'` | Button text |
+| `loadingText` | `string` | `'Generating Receipt...'` | Custom loading text |
+| `loadingComponent` | `React.ReactNode` | `undefined` | Custom loading component |
 | `className` | `string` | `undefined` | Custom CSS class |
 | `includeTheme` | `boolean` | `true` | Include partner branding |
 | `taxMetadata` | `TaxMetadata` | `undefined` | Tax compliance data |
+| `rpcUrl` | `string` | `undefined` | Custom RPC endpoint URL |
+| `customTokens` | `TokenConfig[]` | `undefined` | Custom tokens to detect |
 | `onGenerate` | `(invoice: Invoice) => void` | `undefined` | Called after parsing |
 | `onDownload` | `(success: boolean, error?: string) => void` | `undefined` | Called after download |
 

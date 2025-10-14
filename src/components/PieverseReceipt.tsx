@@ -4,9 +4,9 @@
  */
 
 import React, { useState } from "react";
-import { parseBscTransaction } from "../chains/bsc";
+import { parseBscTransaction, isValidBscTxHash } from "../chains/bsc";
 import { downloadReceiptPDF } from "../core/receipt-generator";
-import type { Invoice, BrandConfig, TaxMetadata, SupportedChain } from "../types";
+import type { Invoice, BrandConfig, TaxMetadata, SupportedChain, TokenConfig, ParseOptions } from "../types";
 
 export interface PieverseReceiptProps {
   /** Transaction hash */
@@ -24,6 +24,12 @@ export interface PieverseReceiptProps {
   /** Button label */
   label?: string;
 
+  /** Custom loading text */
+  loadingText?: string;
+
+  /** Custom loading component (overrides loadingText) */
+  loadingComponent?: React.ReactNode;
+
   /** Custom button className */
   className?: string;
 
@@ -32,6 +38,12 @@ export interface PieverseReceiptProps {
 
   /** Include partner branding in receipt */
   includeTheme?: boolean;
+
+  /** Custom RPC endpoint URL */
+  rpcUrl?: string;
+
+  /** Custom tokens to detect (for chains supporting custom tokens) */
+  customTokens?: TokenConfig[];
 
   /** Callback when download completes */
   onDownload?: (success: boolean, error?: string) => void;
@@ -46,9 +58,13 @@ export function PieverseReceipt({
   brandConfig,
   variant = "button",
   label = "Download Receipt",
+  loadingText = "Generating Receipt...",
+  loadingComponent,
   className,
   taxMetadata,
   includeTheme = true,
+  rpcUrl,
+  customTokens,
   onDownload,
   onGenerate,
 }: PieverseReceiptProps) {
@@ -60,11 +76,28 @@ export function PieverseReceipt({
       setLoading(true);
       setError(null);
 
+      // Validate transaction hash format
+      if (chain === "bsc" && !isValidBscTxHash(tx)) {
+        throw new Error("Invalid BSC transaction hash format. Expected 0x followed by 64 hex characters.");
+      }
+
+      // Sanitize brand config (basic XSS prevention)
+      const sanitizedBrandConfig = brandConfig ? {
+        ...brandConfig,
+        partnerName: brandConfig.partnerName?.replace(/<[^>]*>/g, ""),
+      } : undefined;
+
+      // Build parse options
+      const parseOptions: ParseOptions | undefined = (rpcUrl || customTokens) ? {
+        rpcUrl,
+        customTokens,
+      } : undefined;
+
       // Step 1: Parse transaction
       let invoice: Invoice;
 
       if (chain === "bsc") {
-        invoice = await parseBscTransaction(tx);
+        invoice = await parseBscTransaction(tx, parseOptions);
       } else {
         throw new Error(`Chain ${chain} is not yet supported. Currently supporting: BSC`);
       }
@@ -75,7 +108,7 @@ export function PieverseReceipt({
       // Step 2: Generate and download PDF
       const result = await downloadReceiptPDF(
         invoice,
-        brandConfig,
+        sanitizedBrandConfig,
         includeTheme,
         taxMetadata,
         chain,
@@ -96,6 +129,12 @@ export function PieverseReceipt({
     }
   };
 
+  // Render loading state
+  const renderLoading = () => {
+    if (loadingComponent) return loadingComponent;
+    return loadingText;
+  };
+
   // Button variant
   if (variant === "button") {
     return (
@@ -108,7 +147,7 @@ export function PieverseReceipt({
             "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           }
         >
-          {loading ? "Generating Receipt..." : label}
+          {loading ? renderLoading() : label}
         </button>
         {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
       </div>
@@ -169,7 +208,7 @@ export function PieverseReceipt({
           "text-blue-600 hover:text-blue-800 underline disabled:opacity-50 disabled:cursor-not-allowed"
         }
       >
-        {loading ? "Generating..." : label}
+        {loading ? renderLoading() : label}
       </button>
     );
   }

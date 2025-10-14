@@ -5,9 +5,9 @@
 
 import { createPublicClient, http, formatUnits, type Hash } from "viem";
 import { bsc } from "viem/chains";
-import type { Invoice, CurrencyType, ParsedTransaction } from "../types";
+import type { Invoice, CurrencyType, ParsedTransaction, TokenConfig, ParseOptions } from "../types";
 
-// BSC Chain configuration
+// Constants
 const BSC_RPC_ENDPOINTS = [
   "https://bsc-dataseed1.binance.org",
   "https://bsc-dataseed2.binance.org",
@@ -15,14 +15,49 @@ const BSC_RPC_ENDPOINTS = [
   "https://bsc-dataseed4.binance.org",
 ];
 
-// Known token addresses on BSC
-const TOKEN_ADDRESSES = {
-  USDT: "0x55d398326f99059fF775485246999027B3197955",
-  BUSD: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
-} as const;
-
-// ERC20 transfer method signature
 const TRANSFER_METHOD_ID = "a9059cbb";
+const MIN_TRANSFER_DATA_LENGTH = 138; // 4 bytes method + 32 bytes address + 32 bytes amount
+const DEFAULT_TIMEOUT = 30000; // 30 seconds
+
+// Known token configurations on BSC
+const DEFAULT_BSC_TOKENS: Record<string, TokenConfig> = {
+  "0x55d398326f99059fF775485246999027B3197955": {
+    address: "0x55d398326f99059fF775485246999027B3197955",
+    symbol: "USDT",
+    decimals: 18,
+    name: "Tether USD",
+  },
+  "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56": {
+    address: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+    symbol: "BUSD",
+    decimals: 18,
+    name: "Binance USD",
+  },
+  "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d": {
+    address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+    symbol: "USDC",
+    decimals: 18,
+    name: "USD Coin",
+  },
+};
+
+// Simple LRU cache for parsed transactions
+const txCache = new Map<string, Invoice>();
+const MAX_CACHE_SIZE = 100;
+
+function addToCache(txHash: string, invoice: Invoice) {
+  if (txCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = txCache.keys().next().value;
+    if (firstKey) {
+      txCache.delete(firstKey);
+    }
+  }
+  txCache.set(txHash, invoice);
+}
+
+function getFromCache(txHash: string): Invoice | undefined {
+  return txCache.get(txHash);
+}
 
 /**
  * Create a viem public client for BSC with fallback RPC endpoints
@@ -44,7 +79,7 @@ function parseTokenTransfer(data: string): {
   recipient: string;
   amount: bigint;
 } | null {
-  if (!data || data.length < 138) return null;
+  if (!data || data.length < MIN_TRANSFER_DATA_LENGTH) return null;
 
   const methodId = data.slice(2, 10);
   if (methodId !== TRANSFER_METHOD_ID) return null;
@@ -67,34 +102,55 @@ function parseTokenTransfer(data: string): {
 
 /**
  * Detect currency from transaction
+ * @param to - Transaction destination address
+ * @param value - Transaction value
+ * @param customTokens - User-provided custom tokens
  */
-function detectCurrency(to: string | undefined, value: bigint): CurrencyType {
-  if (!to) return "BNB";
+function detectCurrency(
+  to: string | undefined,
+  value: bigint,
+  customTokens: Record<string, TokenConfig> = {},
+): { currency: CurrencyType | string; tokenConfig?: TokenConfig } {
+  if (!to) return { currency: "BNB" };
 
   const toLower = to.toLowerCase();
 
-  if (toLower === TOKEN_ADDRESSES.USDT.toLowerCase()) {
-    return "USDT";
+  // Check custom tokens first
+  const customToken = customTokens[toLower];
+  if (customToken) {
+    return { currency: customToken.symbol as CurrencyType, tokenConfig: customToken };
+  }
+
+  // Check default tokens
+  const defaultToken = DEFAULT_BSC_TOKENS[toLower];
+  if (defaultToken) {
+    return { currency: defaultToken.symbol as CurrencyType, tokenConfig: defaultToken };
   }
 
   // If value > 0, it's a native BNB transfer
   if (value > 0n) {
-    return "BNB";
+    return { currency: "BNB" };
   }
 
-  // Default to BNB
-  return "BNB";
+  // Unknown token - return address as currency
+  return { currency: "UNKNOWN", tokenConfig: { address: to, symbol: "UNKNOWN", decimals: 18 } };
 }
 
 /**
  * Parse a BSC transaction and convert it to Invoice format
+ * @param txHash - Transaction hash to parse
+ * @param options - Parse options including custom tokens and RPC URL
  */
 export async function parseBscTransaction(
   txHash: string,
-  options?: {
-    rpcUrl?: string;
-  },
+  options?: ParseOptions,
 ): Promise<Invoice> {
+  // Check cache first
+  const cached = getFromCache(txHash);
+  if (cached) {
+    return cached;
+  }
+
   try {
     const client = options?.rpcUrl
       ? createPublicClient({
@@ -103,22 +159,23 @@ export async function parseBscTransaction(
         })
       : createBscClient();
 
-    // Fetch transaction
-    const tx = await client.getTransaction({
-      hash: txHash as Hash,
-    });
+    // Fetch transaction and receipt in parallel for better performance
+    const [tx, receipt] = await Promise.all([
+      client.getTransaction({ hash: txHash as Hash }),
+      client.getTransactionReceipt({ hash: txHash as Hash }),
+    ]);
 
     if (!tx) {
       throw new Error(`Transaction not found: ${txHash}`);
     }
 
-    // Fetch receipt for confirmations and timestamp
-    const receipt = await client.getTransactionReceipt({
-      hash: txHash as Hash,
-    });
-
     if (!receipt) {
       throw new Error(`Transaction receipt not found: ${txHash}`);
+    }
+
+    // Validate transaction status
+    if (receipt.status === "reverted") {
+      throw new Error(`Transaction failed (reverted): ${txHash}`);
     }
 
     // Get block for timestamp
@@ -126,29 +183,47 @@ export async function parseBscTransaction(
       blockNumber: receipt.blockNumber,
     });
 
+    // Build custom tokens map from user options
+    const customTokensMap: Record<string, TokenConfig> = {};
+    if (options?.customTokens) {
+      for (const token of options.customTokens) {
+        customTokensMap[token.address.toLowerCase()] = token;
+      }
+    }
+
     // Determine currency and amount
     let amount: string;
-    let currency: CurrencyType;
+    let currency: CurrencyType | string;
     let recipient: string;
+    let decimals = 18; // Default to 18 decimals
 
-    const detectedCurrency = detectCurrency(tx.to || undefined, tx.value);
+    const detected = detectCurrency(tx.to || undefined, tx.value, customTokensMap);
+    currency = detected.currency;
 
-    if (detectedCurrency === "USDT" && tx.input) {
+    // Check if this is a token transfer
+    if (detected.tokenConfig && tx.input) {
       // Parse token transfer
       const transfer = parseTokenTransfer(tx.input);
 
       if (transfer) {
         recipient = transfer.recipient;
-        amount = formatUnits(transfer.amount, 18); // USDT uses 18 decimals on BSC
-        currency = "USDT";
+        decimals = detected.tokenConfig.decimals;
+        amount = formatUnits(transfer.amount, decimals);
       } else {
-        throw new Error("Failed to parse token transfer data");
+        throw new Error(`Failed to parse token transfer data for ${txHash}`);
       }
     } else {
       // Native BNB transfer
       recipient = tx.to || "";
       amount = formatUnits(tx.value, 18);
       currency = "BNB";
+
+      // Validate this is a simple value transfer
+      if (tx.input && tx.input !== "0x") {
+        throw new Error(
+          `Transaction ${txHash} appears to be a contract interaction, not a simple payment`,
+        );
+      }
     }
 
     // Calculate confirmations
@@ -159,7 +234,7 @@ export async function parseBscTransaction(
     const invoice: Invoice = {
       id: txHash,
       amount,
-      currency,
+      currency: currency as CurrencyType,
       recipientAddress: recipient,
       creatorAddress: tx.from,
       transactionHash: txHash,
@@ -173,6 +248,9 @@ export async function parseBscTransaction(
       blockchainConfirmations: confirmations,
       creatorId: 0, // Not applicable for external transactions
     };
+
+    // Add to cache
+    addToCache(txHash, invoice);
 
     return invoice;
   } catch (error) {
@@ -206,7 +284,7 @@ export async function getBscTransactionDetails(txHash: string): Promise<ParsedTr
       blockNumber: receipt.blockNumber,
     });
 
-    const currency = detectCurrency(tx.to || undefined, tx.value);
+    const detected = detectCurrency(tx.to || undefined, tx.value);
 
     return {
       hash: txHash,
@@ -215,7 +293,7 @@ export async function getBscTransactionDetails(txHash: string): Promise<ParsedTr
       value: formatUnits(tx.value, 18),
       timestamp: Number(block.timestamp),
       blockNumber: receipt.blockNumber.toString(),
-      currency,
+      currency: detected.currency as CurrencyType,
       status: receipt.status === "success" ? "success" : "failed",
     };
   } catch (error) {
