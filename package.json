@@ -1,6 +1,6 @@
 {
   "name": "@pieverse/receipt",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "One-click receipt generation for Web3 transactions with tax compliance",
   "author": "TimePot Team",
   "license": "MIT",
