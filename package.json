@@ -51,10 +51,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/timepot/pieverse-receipt"
+    "url": "git+https://github.com/timepot/pieverse-receipt.git"
   },
   "bugs": {
     "url": "https://github.com/timepot/pieverse-receipt/issues"
   }
 }
-
