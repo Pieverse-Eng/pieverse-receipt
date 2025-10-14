@@ -43,6 +43,8 @@ export type {
   CostBasisInfo,
   ParsedTransaction,
   ChainConfig,
+  TokenConfig,
+  ParseOptions,
 } from "./types";
 
 // Utility functions

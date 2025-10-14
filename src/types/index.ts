@@ -131,6 +131,21 @@ export interface ChainConfig {
   };
 }
 
+// Custom token configuration
+export interface TokenConfig {
+  address: string;
+  symbol: string;
+  decimals: number;
+  name?: string;
+}
+
+// Parse options for transaction parsers
+export interface ParseOptions {
+  rpcUrl?: string; // Custom RPC endpoint
+  customTokens?: TokenConfig[]; // User-defined tokens to detect
+  timeout?: number; // Request timeout in ms
+}
+
 // Transaction parser types
 export interface ParsedTransaction {
   hash: string;
