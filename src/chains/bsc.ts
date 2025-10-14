@@ -17,7 +17,8 @@ const BSC_RPC_ENDPOINTS = [
 
 const TRANSFER_METHOD_ID = "a9059cbb";
 const MIN_TRANSFER_DATA_LENGTH = 138; // 4 bytes method + 32 bytes address + 32 bytes amount
-const DEFAULT_TIMEOUT = 30000; // 30 seconds
+// Reserved for future use with timeout configuration
+// const DEFAULT_TIMEOUT = 30000; // 30 seconds
 
 // Known token configurations on BSC
 const DEFAULT_BSC_TOKENS: Record<string, TokenConfig> = {
@@ -141,10 +142,7 @@ function detectCurrency(
  * @param txHash - Transaction hash to parse
  * @param options - Parse options including custom tokens and RPC URL
  */
-export async function parseBscTransaction(
-  txHash: string,
-  options?: ParseOptions,
-): Promise<Invoice> {
+export async function parseBscTransaction(txHash: string, options?: ParseOptions): Promise<Invoice> {
   // Check cache first
   const cached = getFromCache(txHash);
   if (cached) {
@@ -220,9 +218,7 @@ export async function parseBscTransaction(
 
       // Validate this is a simple value transfer
       if (tx.input && tx.input !== "0x") {
-        throw new Error(
-          `Transaction ${txHash} appears to be a contract interaction, not a simple payment`,
-        );
+        throw new Error(`Transaction ${txHash} appears to be a contract interaction, not a simple payment`);
       }
     }
 
@@ -255,9 +251,7 @@ export async function parseBscTransaction(
     return invoice;
   } catch (error) {
     console.error("Error parsing BSC transaction:", error);
-    throw new Error(
-      `Failed to parse transaction: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
+    throw new Error(`Failed to parse transaction: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 }
 

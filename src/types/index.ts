@@ -116,7 +116,7 @@ export interface DownloadResult {
 }
 
 // Chain types
-export type SupportedChain = "bsc" | "ethereum" | "polygon" | "arbitrum" | "solana";
+export type SupportedChain = "bsc" | "ethereum" | "polygon" | "arbitrum" | "optimism" | "base";
 
 export interface ChainConfig {
   chainId: number;

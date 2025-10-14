@@ -7,19 +7,14 @@ import React from "react";
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import type { Invoice, TaxMetadata, BrandConfig, DownloadResult } from "../types";
 import {
-  formatAddress,
+  // formatAddress, // TODO: Use in future version
   formatCurrencyAmount,
   formatShortDate,
   getExplorerLink,
   getExplorerName,
   getBlockchainName,
 } from "../lib/utils";
-import {
-  isWalletBrowser,
-  getWalletBrowserName,
-  isAndroidDevice,
-  isIOSDevice,
-} from "../lib/browser-detection";
+import { isWalletBrowser, getWalletBrowserName, isAndroidDevice, isIOSDevice } from "../lib/browser-detection";
 
 // PDF Styles
 const styles = StyleSheet.create({
@@ -162,17 +157,17 @@ export const ReceiptPDF: React.FC<ReceiptPDFProps> = ({
   invoice,
   brandConfig,
   includeTheme = true,
-  taxMetadata,
+  taxMetadata, // TODO: Implement tax metadata rendering
   chain = "bsc",
 }) => {
+  // Suppress unused variable warning - will be used when tax forms are implemented
+  void taxMetadata;
   const partnerName = includeTheme ? brandConfig?.partnerName || "Pieverse" : "Pieverse";
   const logoUrl = includeTheme ? brandConfig?.logoUrl : null;
   const primaryColor = includeTheme ? brandConfig?.primaryColor || "#F97316" : "#6B7280";
   const secondaryColor = includeTheme ? brandConfig?.secondaryColor || "#10B981" : "#10B981";
 
-  const explorerLink = invoice.transactionHash
-    ? getExplorerLink(invoice.transactionHash, chain)
-    : "";
+  const explorerLink = invoice.transactionHash ? getExplorerLink(invoice.transactionHash, chain) : "";
   const explorerName = getExplorerName(chain);
   const blockchainName = getBlockchainName(chain);
 
@@ -197,9 +192,7 @@ export const ReceiptPDF: React.FC<ReceiptPDFProps> = ({
         </View>
 
         {/* Amount */}
-        <Text style={[styles.amount, { color: primaryColor }]}>
-          {formatCurrencyAmount(invoice.amount, invoice.currency)}
-        </Text>
+        <Text style={[styles.amount, { color: primaryColor }]}>{formatCurrencyAmount(invoice.amount, 2)}</Text>
         <Text style={styles.currency}>{invoice.currency}</Text>
 
         <View style={styles.divider} />
@@ -218,9 +211,7 @@ export const ReceiptPDF: React.FC<ReceiptPDFProps> = ({
           <Text style={[styles.sectionTitle, { color: primaryColor }]}>Payment Information</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Paid on:</Text>
-            <Text style={styles.value}>
-              {invoice.paidAt ? formatShortDate(invoice.paidAt) : "N/A"}
-            </Text>
+            <Text style={styles.value}>{invoice.paidAt ? formatShortDate(invoice.paidAt) : "N/A"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Payment Method:</Text>
@@ -230,13 +221,12 @@ export const ReceiptPDF: React.FC<ReceiptPDFProps> = ({
             <Text style={styles.label}>Blockchain:</Text>
             <Text style={styles.value}>{blockchainName}</Text>
           </View>
-          {invoice.blockchainConfirmations !== undefined &&
-            invoice.blockchainConfirmations !== null && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Confirmations:</Text>
-                <Text style={styles.value}>{invoice.blockchainConfirmations}</Text>
-              </View>
-            )}
+          {invoice.blockchainConfirmations !== undefined && invoice.blockchainConfirmations !== null && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Confirmations:</Text>
+              <Text style={styles.value}>{invoice.blockchainConfirmations}</Text>
+            </View>
+          )}
         </View>
 
         {/* Addresses */}
@@ -244,9 +234,7 @@ export const ReceiptPDF: React.FC<ReceiptPDFProps> = ({
           <Text style={[styles.sectionTitle, { color: primaryColor }]}>Transaction Details</Text>
           <View style={styles.row}>
             <Text style={styles.label}>To:</Text>
-            <Text style={[styles.value, { fontSize: 9, fontFamily: "Courier" }]}>
-              {invoice.recipientAddress}
-            </Text>
+            <Text style={[styles.value, { fontSize: 9, fontFamily: "Courier" }]}>{invoice.recipientAddress}</Text>
           </View>
           {invoice.recipientName && (
             <View style={styles.row}>
@@ -256,9 +244,7 @@ export const ReceiptPDF: React.FC<ReceiptPDFProps> = ({
           )}
           <View style={styles.row}>
             <Text style={styles.label}>From:</Text>
-            <Text style={[styles.value, { fontSize: 9, fontFamily: "Courier" }]}>
-              {invoice.creatorAddress}
-            </Text>
+            <Text style={[styles.value, { fontSize: 9, fontFamily: "Courier" }]}>{invoice.creatorAddress}</Text>
           </View>
         </View>
 
@@ -278,9 +264,7 @@ export const ReceiptPDF: React.FC<ReceiptPDFProps> = ({
         {/* Blockchain Verification */}
         {invoice.transactionHash && (
           <View style={[styles.blockchainSection, { backgroundColor: `${secondaryColor}10` }]}>
-            <Text style={[styles.sectionTitle, { color: secondaryColor }]}>
-              Blockchain Verification
-            </Text>
+            <Text style={[styles.sectionTitle, { color: secondaryColor }]}>Blockchain Verification</Text>
             <Text style={styles.txHashLabel}>Transaction Hash:</Text>
             <Text style={styles.txHashValue}>{invoice.transactionHash}</Text>
             <Text style={styles.txHashLabel}>Block Number:</Text>
@@ -315,18 +299,12 @@ export const ReceiptPDF: React.FC<ReceiptPDFProps> = ({
         {/* Footer */}
         <View style={[styles.footer, { borderTopColor: `${primaryColor}20` }]}>
           {includeTheme ? (
-            <Text style={{ color: primaryColor, fontWeight: "bold" }}>
-              Powered by {partnerName}
-            </Text>
+            <Text style={{ color: primaryColor, fontWeight: "bold" }}>Powered by {partnerName}</Text>
           ) : (
-            <Text style={{ color: "#6B7280", fontWeight: "bold" }}>
-              Pieverse - Blockchain Payment Receipt
-            </Text>
+            <Text style={{ color: "#6B7280", fontWeight: "bold" }}>Pieverse - Blockchain Payment Receipt</Text>
           )}
           <Text style={{ marginTop: 4 }}>Blockchain • Secure • Transparent • Immutable</Text>
-          <Text style={{ marginTop: 8, fontSize: 8 }}>
-            Generated on {new Date().toLocaleString()}
-          </Text>
+          <Text style={{ marginTop: 8, fontSize: 8 }}>Generated on {new Date().toLocaleString()}</Text>
         </View>
       </Page>
     </Document>
@@ -336,10 +314,7 @@ export const ReceiptPDF: React.FC<ReceiptPDFProps> = ({
 /**
  * Progressive enhancement download strategy
  */
-const tryDownloadWithProgressiveEnhancement = async (
-  blob: Blob,
-  filename: string,
-): Promise<DownloadResult> => {
+const tryDownloadWithProgressiveEnhancement = async (blob: Blob, filename: string): Promise<DownloadResult> => {
   // Method 0: Android wallet browser - convert to data URL
   if (isWalletBrowser() && isAndroidDevice()) {
     const walletName = getWalletBrowserName();

@@ -2,14 +2,14 @@
  * Utility functions for receipt generation
  */
 
-import type { CurrencyType } from "../types";
-
 /**
  * Format wallet address to shortened version
  * @example "0x1234...5678"
  */
-export function formatAddress(address: string, startChars = 6, endChars = 4): string {
-  if (!address || address.length < startChars + endChars) return address;
+export function formatAddress(address: string, length = 4): string {
+  if (!address || address.length <= 10) return address;
+  const startChars = 2 + length; // 0x + length
+  const endChars = length;
   return `${address.slice(0, startChars)}...${address.slice(-endChars)}`;
 }
 
@@ -23,13 +23,10 @@ export function isValidAddress(address: string): boolean {
 /**
  * Format currency amount with proper decimals
  */
-export function formatCurrencyAmount(amount: string | number, currency: CurrencyType): string {
+export function formatCurrencyAmount(amount: string | number, decimals: number = 2): string {
   const num = typeof amount === "string" ? parseFloat(amount) : amount;
 
   if (isNaN(num)) return "0";
-
-  // USDT has 2 decimals, crypto currencies typically have 4-8
-  const decimals = currency === "USDT" ? 2 : 4;
 
   return num.toLocaleString("en-US", {
     minimumFractionDigits: decimals,
@@ -58,6 +55,8 @@ export function getExplorerLink(txHash: string, chain: string = "bsc"): string {
     ethereum: "https://etherscan.io",
     polygon: "https://polygonscan.com",
     arbitrum: "https://arbiscan.io",
+    optimism: "https://optimistic.etherscan.io",
+    base: "https://basescan.org",
   };
 
   const baseUrl = explorers[chain] || explorers.bsc;
@@ -69,10 +68,12 @@ export function getExplorerLink(txHash: string, chain: string = "bsc"): string {
  */
 export function getExplorerName(chain: string = "bsc"): string {
   const names: Record<string, string> = {
-    bsc: "BSCScan",
+    bsc: "BscScan",
     ethereum: "Etherscan",
     polygon: "PolygonScan",
     arbitrum: "Arbiscan",
+    optimism: "Optimism Etherscan",
+    base: "BaseScan",
   };
 
   return names[chain] || names.bsc;
@@ -83,10 +84,12 @@ export function getExplorerName(chain: string = "bsc"): string {
  */
 export function getBlockchainName(chain: string = "bsc"): string {
   const names: Record<string, string> = {
-    bsc: "BNB Smart Chain (BSC)",
+    bsc: "BNB Smart Chain",
     ethereum: "Ethereum",
     polygon: "Polygon",
     arbitrum: "Arbitrum",
+    optimism: "Optimism",
+    base: "Base",
   };
 
   return names[chain] || names.bsc;
