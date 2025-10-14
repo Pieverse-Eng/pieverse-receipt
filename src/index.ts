@@ -29,52 +29,53 @@ export type { PieverseReceiptProps } from "./components/PieverseReceipt";
 
 // Types
 export type {
-  Invoice,
-  BrandConfig,
-  TaxMetadata,
-  CurrencyType,
-  InvoiceStatus,
-  SupportedChain,
-  DownloadResult,
-  DownloadMethod,
-  UserRole,
-  TransactionType,
-  Jurisdiction,
-  CostBasisInfo,
-  ParsedTransaction,
-  ChainConfig,
-  TokenConfig,
-  ParseOptions,
+	Invoice,
+	BrandConfig,
+	TaxMetadata,
+	CurrencyType,
+	InvoiceStatus,
+	SupportedChain,
+	DownloadResult,
+	DownloadMethod,
+	UserRole,
+	TransactionType,
+	Jurisdiction,
+	CostBasisInfo,
+	ParsedTransaction,
+	ChainConfig,
+	TokenConfig,
+	ParseOptions,
 } from "./types";
 
 // Utility functions
 export {
-  formatAddress,
-  formatCurrencyAmount,
-  formatShortDate,
-  getExplorerLink,
-  getExplorerName,
-  getBlockchainName,
-  isValidAddress,
+	formatAddress,
+	formatCurrencyAmount,
+	formatShortDate,
+	getExplorerLink,
+	getExplorerName,
+	getBlockchainName,
+	isValidAddress,
 } from "./lib/utils";
 
 // Browser detection utilities
 export {
-  isAndroidDevice,
-  isIOSDevice,
-  isWalletBrowser,
-  getWalletBrowserName,
+	isAndroidDevice,
+	isIOSDevice,
+	isWalletBrowser,
+	getWalletBrowserName,
 } from "./lib/browser-detection";
 
 // Chain parsers (for advanced users who want to parse transactions separately)
-export { parseBscTransaction, getBscTransactionDetails, isValidBscTxHash } from "./chains/bsc";
+export {
+	parseBscTransaction,
+	getBscTransactionDetails,
+	isValidBscTxHash,
+} from "./chains/bsc";
 
 // Core PDF generator (headless API for custom implementations)
 export { downloadReceiptPDF, ReceiptPDF } from "./core/receipt-generator";
 
 // Package metadata
-export const VERSION = "0.1.0-alpha.1";
+export const VERSION = "0.1.0-alpha.3";
 export const PACKAGE_NAME = "@pieverse/receipt";
-
-// Default export
-export { PieverseReceipt as default } from "./components/PieverseReceipt";
