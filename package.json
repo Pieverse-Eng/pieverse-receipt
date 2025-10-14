@@ -1,6 +1,6 @@
 {
   "name": "@pieverse/receipt",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "One-click receipt generation for Web3 transactions with tax compliance",
   "author": "TimePot Team",
   "license": "MIT",
@@ -51,9 +51,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/timepot/pieverse-receipt.git"
+    "url": "git+https://github.com/Pieverse-Eng/pieverse-receipt.git"
   },
   "bugs": {
-    "url": "https://github.com/timepot/pieverse-receipt/issues"
+    "url": "https://github.com/Pieverse-Eng/pieverse-receipt/issues"
   }
 }

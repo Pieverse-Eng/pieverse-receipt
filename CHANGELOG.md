@@ -63,5 +63,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No tests yet
 - Not published to npm yet
 
-[0.1.0-alpha.2]: https://github.com/timepot/pieverse-receipt/releases/tag/v0.1.0-alpha.2
-[0.1.0-alpha.1]: https://github.com/timepot/pieverse-receipt/releases/tag/v0.1.0-alpha.1
+[0.1.0-alpha.2]: https://github.com/Pieverse-Eng/pieverse-receipt/releases/tag/v0.1.0-alpha.2
+[0.1.0-alpha.1]: https://github.com/Pieverse-Eng/pieverse-receipt/releases/tag/v0.1.0-alpha.1

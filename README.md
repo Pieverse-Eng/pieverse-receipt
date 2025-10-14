@@ -346,7 +346,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-MIT © TimePot Team
+MIT © Pieverse Team
 
 ## 🙏 Acknowledgments
 
@@ -358,8 +358,7 @@ Built with:
 ## 📞 Support
 
 - 📧 Email: support@pieverse.io
-- 💬 Discord: [Join our community](https://discord.gg/pieverse)
-- 🐛 Issues: [GitHub Issues](https://github.com/timepot/pieverse-receipt/issues)
+- 🐛 Issues: [GitHub Issues](https://github.com/Pieverse-Eng/pieverse-receipt/issues)
 
 ## 🗺️ Roadmap
 
