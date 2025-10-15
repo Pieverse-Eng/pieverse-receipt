@@ -54,9 +54,7 @@ export function isBinanceWalletMobileBrowser(): boolean {
 
   const hasInjected = typeof (window as any).BinanceChain !== "undefined";
   const androidWebView =
-    isAndroid &&
-    (BROWSER_DETECTION.WEBVIEW_REGEX.test(uaLower) ||
-      BROWSER_DETECTION.CHROME_VERSION_REGEX.test(ua));
+    isAndroid && (BROWSER_DETECTION.WEBVIEW_REGEX.test(uaLower) || BROWSER_DETECTION.CHROME_VERSION_REGEX.test(ua));
   const iosMobileWebView = isIOS && BROWSER_DETECTION.MOBILE_REGEX.test(ua);
 
   if (isMobile && hasInjected && (androidWebView || iosMobileWebView)) return true;
