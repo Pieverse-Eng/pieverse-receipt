@@ -82,16 +82,21 @@ export function PieverseReceipt({
       }
 
       // Sanitize brand config (basic XSS prevention)
-      const sanitizedBrandConfig = brandConfig ? {
-        ...brandConfig,
-        partnerName: brandConfig.partnerName?.replace(/<[^>]*>/g, ""),
-      } : undefined;
+      const sanitizedBrandConfig = brandConfig
+        ? {
+            ...brandConfig,
+            partnerName: brandConfig.partnerName?.replace(/<[^>]*>/g, ""),
+          }
+        : undefined;
 
       // Build parse options
-      const parseOptions: ParseOptions | undefined = (rpcUrl || customTokens) ? {
-        rpcUrl,
-        customTokens,
-      } : undefined;
+      const parseOptions: ParseOptions | undefined =
+        rpcUrl || customTokens
+          ? {
+              rpcUrl,
+              customTokens,
+            }
+          : undefined;
 
       // Step 1: Parse transaction
       let invoice: Invoice;
@@ -106,13 +111,7 @@ export function PieverseReceipt({
       onGenerate?.(invoice);
 
       // Step 2: Generate and download PDF
-      const result = await downloadReceiptPDF(
-        invoice,
-        sanitizedBrandConfig,
-        includeTheme,
-        taxMetadata,
-        chain,
-      );
+      const result = await downloadReceiptPDF(invoice, sanitizedBrandConfig, includeTheme, taxMetadata, chain);
 
       // Step 3: Callback
       onDownload?.(result.success, result.error);
@@ -168,15 +167,7 @@ export function PieverseReceipt({
       >
         {loading ? (
           <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="none"
-            />
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
             <path
               className="opacity-75"
               fill="currentColor"
@@ -204,8 +195,7 @@ export function PieverseReceipt({
         onClick={handleDownload}
         disabled={loading}
         className={
-          className ||
-          "text-blue-600 hover:text-blue-800 underline disabled:opacity-50 disabled:cursor-not-allowed"
+          className || "text-blue-600 hover:text-blue-800 underline disabled:opacity-50 disabled:cursor-not-allowed"
         }
       >
         {loading ? renderLoading() : label}
