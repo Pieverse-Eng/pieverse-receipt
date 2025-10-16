@@ -1,5 +1,6 @@
 import { PieverseReceipt } from "pieverse-receipt";
 import type { BrandConfig, TaxMetadata } from "pieverse-receipt";
+import { ReceiptForm } from "./components/ReceiptForm";
 import "./App.css";
 
 function App() {
@@ -75,6 +76,16 @@ function App() {
       <p className="intro">
         Interactive examples demonstrating the Pieverse Receipt component. Click any button to generate a receipt PDF
         from a blockchain transaction.
+      </p>
+
+      {/* Interactive Form Section */}
+      <ReceiptForm />
+
+      <hr style={{ margin: "4rem 0", border: "none", borderTop: "2px solid #333" }} />
+
+      <h2>Pre-configured Examples</h2>
+      <p className="intro" style={{ marginTop: "1rem" }}>
+        Below are pre-configured examples showcasing various features and use cases.
       </p>
 
       <div className="info-section">
